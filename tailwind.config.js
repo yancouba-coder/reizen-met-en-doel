@@ -78,6 +78,17 @@ export default {
                     light: '#FEB2B2',
                     dark: '#E53E3E',
                 },
+
+                // Admin specific colors
+                admin: {
+                    sidebar: '#1E293B',      // Slate-800
+                    hover: '#334155',        // Slate-700
+                    active: '#0EA5E9',       // Sky-500
+                    danger: '#EF4444',       // Red-500
+                    success: '#10B981',      // Green-500
+                    warning: '#F59E0B',      // Amber-500
+                    background: '#F1F5F9',   // Slate-100
+                },
             },
 
             // Espacements sémantiques (padding, margin, gap)

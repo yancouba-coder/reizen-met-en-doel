@@ -7,7 +7,22 @@ const CURRENT_USER_KEY = 'twap_current_user';
 const initUsers = () => {
     const users = localStorage.getItem(USERS_KEY);
     if (!users) {
-        localStorage.setItem(USERS_KEY, JSON.stringify([]));
+        // Seed with an admin user for testing
+        const seedUsers = [
+            {
+                id: 'admin-001',
+                email: 'admin@example.com',
+                password: 'admin123',
+                firstName: 'Admin',
+                lastName: 'User',
+                role: 'admin',
+                createdAt: new Date().toISOString(),
+                avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=admin',
+                sponsoredChildren: [],
+                participatedProjects: []
+            }
+        ];
+        localStorage.setItem(USERS_KEY, JSON.stringify(seedUsers));
     }
 };
 

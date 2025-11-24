@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Button Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="p-8">
+    <h1 class="text-2xl mb-4">Button Test</h1>
+    
+    <!-- Test basic button -->
+    <button class="bg-blue-600 text-white px-4 py-2 rounded-md mb-4">
+        Basic Button
+    </button>
+    
+    <!-- Test primary button with same classes as our Button component -->
+    <button class="bg-primary text-text-inverse hover:bg-primary-600 rounded-md font-medium px-4 py-2 flex items-center justify-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        Add New
+    </button>
+    
+    <p class="mt-4">If you see buttons above, Tailwind and basic rendering works.</p>
+</body>
+</html>
