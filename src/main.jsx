@@ -9,7 +9,7 @@ import './i18n/i18n'
 import { setupMockServer } from './api/mockServer'
 
 // Initialize mock server
-setupMockServer();
+// setupMockServer();
 
 const queryClient = new QueryClient()
 

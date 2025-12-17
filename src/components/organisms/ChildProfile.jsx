@@ -68,9 +68,12 @@ const ChildProfile = ({ child, onSponsorClick, isSponsoredByMe }) => {
 
                         <h3 className="text-xl font-bold text-text mt-6 mb-2">Needs</h3>
                         <div className="flex flex-wrap gap-2">
-                            {needs.map((need) => (
+                            {needs && Array.isArray(needs) && needs.map((need) => (
                                 <Badge key={need} variant="info" className="capitalize">{need}</Badge>
                             ))}
+                            {(!needs || needs.length === 0) && (
+                                <span className="text-gray-500 text-sm">No specific needs listed</span>
+                            )}
                         </div>
                     </div>
 

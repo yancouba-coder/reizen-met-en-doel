@@ -1,4 +1,4 @@
-import { getChildren, getProjects, addChild, updateChild } from './seeds';
+import { getChildren, getProjects, addChild, updateChild, deleteChild } from './seeds';
 
 // Simple in-memory mock for development without MSW complexity if preferred, 
 // but we can also use this to patch the global fetch or just use it in our client.
@@ -41,6 +41,25 @@ export const setupMockServer = () => {
                 const body = JSON.parse(init.body);
                 const newChild = addChild(body);
                 return new Response(JSON.stringify(newChild), { status: 201 });
+            }
+
+            if (method === 'PUT') {
+                const id = url.split('/').pop();
+                const body = JSON.parse(init.body);
+                const updatedChild = updateChild(id, body);
+                if (updatedChild) {
+                    return new Response(JSON.stringify(updatedChild), { status: 200 });
+                }
+                return new Response(JSON.stringify({ error: 'Child not found' }), { status: 404 });
+            }
+
+            if (method === 'DELETE') {
+                const id = url.split('/').pop();
+                const success = deleteChild(id);
+                if (success) {
+                    return new Response(JSON.stringify({ success: true }), { status: 200 });
+                }
+                return new Response(JSON.stringify({ error: 'Child not found' }), { status: 404 });
             }
         }
 

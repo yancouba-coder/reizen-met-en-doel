@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import DefaultLayout from '../components/templates/DefaultLayout';
 import AdminLayout from '../components/templates/AdminLayout';
@@ -36,8 +36,13 @@ import AdminSettings from '../pages/Admin/AdminSettings';
 import { Navigate } from 'react-router-dom';
 
 import { ToastProvider } from '../context/ToastContext';
+import { initData } from '../utils/initData';
 
 const AppRoutes = () => {
+    useEffect(() => {
+        initData();
+    }, []);
+
     return (
         <ToastProvider>
             <Routes>

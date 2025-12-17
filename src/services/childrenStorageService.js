@@ -1,73 +1,79 @@
-import { faker } from '@faker-js/faker';
+import {
+    collection,
+    getDocs,
+    getDoc,
+    addDoc,
+    updateDoc,
+    deleteDoc,
+    doc,
+    query,
+    where
+} from 'firebase/firestore';
+import { db } from '../config/firebase';
 
-const CHILDREN_KEY = 'twap_children';
-
-// Initialize with sample data
-const initChildren = () => {
-    const children = localStorage.getItem(CHILDREN_KEY);
-    if (!children) {
-        const sampleChildren = Array.from({ length: 8 }).map(() => ({
-            id: faker.string.uuid(),
-            firstName: faker.person.firstName(),
-            lastName: faker.person.lastName(),
-            age: faker.number.int({ min: 5, max: 16 }),
-            gender: faker.helpers.arrayElement(['male', 'female']),
-            village: faker.location.city(),
-            story: faker.lorem.paragraph(),
-            sponsorCostMonthly: faker.number.int({ min: 20, max: 50 }),
-            status: faker.helpers.arrayElement(['waiting', 'sponsored', 'urgent']),
-            imageUrl: faker.image.urlLoremFlickr({ category: 'people' }),
-            createdAt: faker.date.past().toISOString()
-        }));
-        localStorage.setItem(CHILDREN_KEY, JSON.stringify(sampleChildren));
-        return sampleChildren;
-    }
-    return JSON.parse(children);
-};
+const COLLECTION_NAME = 'children';
 
 export const childrenStorageService = {
     getAll: async () => {
-        await new Promise(resolve => setTimeout(resolve, 300));
-        return initChildren();
+        try {
+            const querySnapshot = await getDocs(collection(db, COLLECTION_NAME));
+            return querySnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+        } catch (error) {
+            console.error("Error fetching children:", error);
+            throw error;
+        }
     },
 
     getById: async (id) => {
-        await new Promise(resolve => setTimeout(resolve, 200));
-        const children = initChildren();
-        return children.find(c => c.id === id);
+        try {
+            const docRef = doc(db, COLLECTION_NAME, id);
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists()) {
+                return { id: docSnap.id, ...docSnap.data() };
+            } else {
+                throw new Error('Child not found');
+            }
+        } catch (error) {
+            console.error("Error fetching child:", error);
+            throw error;
+        }
     },
 
     create: async (childData) => {
-        await new Promise(resolve => setTimeout(resolve, 500));
-        const children = initChildren();
-        const newChild = {
-            id: faker.string.uuid(),
-            ...childData,
-            imageUrl: faker.image.urlLoremFlickr({ category: 'people' }),
-            createdAt: new Date().toISOString()
-        };
-        children.push(newChild);
-        localStorage.setItem(CHILDREN_KEY, JSON.stringify(children));
-        return newChild;
+        try {
+            const docRef = await addDoc(collection(db, COLLECTION_NAME), {
+                ...childData,
+                createdAt: new Date().toISOString()
+            });
+            return { id: docRef.id, ...childData };
+        } catch (error) {
+            console.error("Error creating child:", error);
+            throw error;
+        }
     },
 
     update: async (id, updates) => {
-        await new Promise(resolve => setTimeout(resolve, 500));
-        const children = initChildren();
-        const index = children.findIndex(c => c.id === id);
-        if (index !== -1) {
-            children[index] = { ...children[index], ...updates };
-            localStorage.setItem(CHILDREN_KEY, JSON.stringify(children));
-            return children[index];
+        try {
+            const docRef = doc(db, COLLECTION_NAME, id);
+            await updateDoc(docRef, updates);
+            return { id, ...updates };
+        } catch (error) {
+            console.error("Error updating child:", error);
+            throw error;
         }
-        throw new Error('Child not found');
     },
 
     delete: async (id) => {
-        await new Promise(resolve => setTimeout(resolve, 400));
-        const children = initChildren();
-        const filtered = children.filter(c => c.id !== id);
-        localStorage.setItem(CHILDREN_KEY, JSON.stringify(filtered));
-        return true;
+        try {
+            await deleteDoc(doc(db, COLLECTION_NAME, id));
+            return true;
+        } catch (error) {
+            console.error("Error deleting child:", error);
+            throw error;
+        }
     }
 };

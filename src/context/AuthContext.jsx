@@ -8,9 +8,9 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const initAuth = () => {
+        const initAuth = async () => {
             try {
-                const currentUser = authService.getCurrentUser();
+                const currentUser = await authService.getCurrentUser();
                 setUser(currentUser);
             } catch (error) {
                 console.error('Auth initialization error:', error);
@@ -46,8 +46,8 @@ export const AuthProvider = ({ children }) => {
         return updatedUser;
     };
 
-    const refreshUser = () => {
-        const currentUser = authService.getCurrentUser();
+    const refreshUser = async () => {
+        const currentUser = await authService.getCurrentUser();
         setUser(currentUser);
         return currentUser;
     };

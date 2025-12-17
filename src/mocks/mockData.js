@@ -17,7 +17,7 @@ export const generateMockChildren = (count = 20) => {
             story: faker.lorem.paragraphs(3),
             description: faker.lorem.sentence(),
             needs: faker.helpers.arrayElements(['education', 'healthcare', 'nutrition', 'clothing'], { min: 1, max: 3 }),
-            imageUrl: faker.image.urlLoremFlickr({ category: 'people' }), // Using loremflickr for more consistent people images
+            imageUrl: faker.image.url({ width: 640, height: 480 }),
             sponsorCostMonthly: faker.number.int({ min: 20, max: 50 }),
             status: faker.helpers.arrayElement(['waiting', 'sponsored', 'urgent']),
             joinedDate: faker.date.past().toISOString()
@@ -48,7 +48,7 @@ export const generateMockProjects = (count = 12) => {
             description: faker.lorem.sentences(2),
             fullDescription: faker.lorem.paragraphs(3),
             purpose: projectType.purpose,
-            image: faker.image.urlLoremFlickr({ category: 'nature,architecture' }),
+            image: faker.image.url({ width: 640, height: 480 }),
             targetAmount: targetAmount,
             raisedAmount: raisedAmount,
             location: faker.location.city(),

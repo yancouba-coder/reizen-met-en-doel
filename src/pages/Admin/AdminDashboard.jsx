@@ -50,9 +50,9 @@ const AdminDashboard = () => {
                 const planned = projects.filter(p => p.status === 'planned').length;
 
                 setProjectStatusData([
-                    { name: 'Completed', value: completed, color: '#10B981' },
-                    { name: 'In Progress', value: inProgress, color: '#3B82F6' },
-                    { name: 'Planned', value: planned, color: '#F59E0B' },
+                    { name: 'Completed', value: completed, color: '#2A9D8F' }, // success
+                    { name: 'In Progress', value: inProgress, color: '#E9C46A' }, // warning/secondary
+                    { name: 'Planned', value: planned, color: '#264653' }, // primary
                 ]);
 
                 // Mock Sponsorship Data
@@ -76,10 +76,10 @@ const AdminDashboard = () => {
     }, []);
 
     const recentActivities = [
-        { id: 1, user: 'Admin', action: 'Added new child', target: 'Fatou Diop', time: '2 hours ago', icon: 'UserPlus', color: 'bg-blue-100 text-blue-600' },
-        { id: 2, user: 'System', action: 'New donation received', target: '€50 for Water Well', time: '4 hours ago', icon: 'DollarSign', color: 'bg-green-100 text-green-600' },
-        { id: 3, user: 'Admin', action: 'Updated project status', target: 'School Building', time: '1 day ago', icon: 'Edit', color: 'bg-yellow-100 text-yellow-600' },
-        { id: 4, user: 'Admin', action: 'Uploaded photos', target: 'Trip to Senegal', time: '2 days ago', icon: 'Image', color: 'bg-purple-100 text-purple-600' },
+        { id: 1, user: 'Admin', action: 'Added new child', target: 'Fatou Diop', time: '2 hours ago', icon: 'UserPlus', color: 'bg-primary/10 text-primary' },
+        { id: 2, user: 'System', action: 'New donation received', target: '€50 for Water Well', time: '4 hours ago', icon: 'DollarSign', color: 'bg-success/10 text-success' },
+        { id: 3, user: 'Admin', action: 'Updated project status', target: 'School Building', time: '1 day ago', icon: 'Edit', color: 'bg-warning/10 text-warning' },
+        { id: 4, user: 'Admin', action: 'Uploaded photos', target: 'Trip to Senegal', time: '2 days ago', icon: 'Image', color: 'bg-info/10 text-info' },
     ];
 
     if (isLoading) {
@@ -93,10 +93,10 @@ const AdminDashboard = () => {
     return (
         <div className="space-y-8">
             {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b-2 border-primary/5 pb-6">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-800">{t('admin_dashboard') || 'Dashboard'}</h1>
-                    <p className="text-gray-500">Overview of your organization's impact</p>
+                    <h1 className="text-4xl font-serif font-bold text-primary mb-2">{t('admin_dashboard') || 'Dashboard'}</h1>
+                    <p className="text-text-muted font-sans">Overview of your organization's impact</p>
                 </div>
                 <div className="flex gap-3">
                     <Button variant="outline" size="sm">
@@ -120,18 +120,18 @@ const AdminDashboard = () => {
             {/* Charts Section */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Sponsorship Growth */}
-                <div className="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                    <h3 className="text-lg font-bold text-gray-800 mb-6">Sponsorship Growth</h3>
+                <div className="lg:col-span-2 bg-white p-6 rounded-editorial shadow-editorial border-2 border-primary/5">
+                    <h3 className="text-xl font-serif font-bold text-primary mb-6">Sponsorship Growth</h3>
                     <div className="h-80">
                         <ResponsiveContainer width="100%" height="100%">
                             <LineChart data={sponsorshipData}>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
-                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#6B7280' }} dy={10} />
-                                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6B7280' }} />
+                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#6B7280', fontFamily: 'Outfit' }} dy={10} />
+                                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6B7280', fontFamily: 'Outfit' }} />
                                 <Tooltip
-                                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
+                                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '4px 4px 0px 0px rgba(38, 70, 83, 0.1)', fontFamily: 'Outfit' }}
                                 />
-                                <Line type="monotone" dataKey="active" stroke="#E88D30" strokeWidth={3} dot={{ r: 4, fill: '#E88D30', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 6 }} name="Active Sponsors" />
+                                <Line type="monotone" dataKey="active" stroke="#E76F51" strokeWidth={3} dot={{ r: 4, fill: '#E76F51', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 6 }} name="Active Sponsors" />
                                 <Line type="monotone" dataKey="waiting" stroke="#9CA3AF" strokeWidth={3} dot={{ r: 4, fill: '#9CA3AF', strokeWidth: 2, stroke: '#fff' }} name="Waiting List" />
                             </LineChart>
                         </ResponsiveContainer>
@@ -139,8 +139,8 @@ const AdminDashboard = () => {
                 </div>
 
                 {/* Project Status */}
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                    <h3 className="text-lg font-bold text-gray-800 mb-6">Project Status</h3>
+                <div className="bg-white p-6 rounded-editorial shadow-editorial border-2 border-primary/5">
+                    <h3 className="text-xl font-serif font-bold text-primary mb-6">Project Status</h3>
                     <div className="h-64">
                         <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
@@ -157,18 +157,18 @@ const AdminDashboard = () => {
                                         <Cell key={`cell-${index}`} fill={entry.color} />
                                     ))}
                                 </Pie>
-                                <Tooltip />
+                                <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '4px 4px 0px 0px rgba(38, 70, 83, 0.1)', fontFamily: 'Outfit' }} />
                             </PieChart>
                         </ResponsiveContainer>
                     </div>
-                    <div className="space-y-3 mt-4">
+                    <div className="space-y-4 mt-6">
                         {projectStatusData.map((item, index) => (
-                            <div key={index} className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
+                            <div key={index} className="flex items-center justify-between p-2 hover:bg-background-subtle rounded-lg transition-colors">
+                                <div className="flex items-center gap-3">
                                     <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
-                                    <span className="text-sm text-gray-600">{item.name}</span>
+                                    <span className="text-sm font-medium text-text-muted">{item.name}</span>
                                 </div>
-                                <span className="text-sm font-medium text-gray-800">{item.value}</span>
+                                <span className="text-sm font-bold text-primary">{item.value}</span>
                             </div>
                         ))}
                     </div>
@@ -176,21 +176,21 @@ const AdminDashboard = () => {
             </div>
 
             {/* Recent Activities */}
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <h3 className="text-lg font-bold text-gray-800 mb-6">Recent Activities</h3>
+            <div className="bg-white p-6 rounded-editorial shadow-editorial border-2 border-primary/5">
+                <h3 className="text-xl font-serif font-bold text-primary mb-6">Recent Activities</h3>
                 <div className="space-y-6">
                     {recentActivities.map((activity) => (
-                        <div key={activity.id} className="flex items-start gap-4">
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${activity.color}`}>
+                        <div key={activity.id} className="flex items-start gap-4 p-4 hover:bg-background-subtle rounded-lg transition-colors group">
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${activity.color} group-hover:scale-110 transition-transform`}>
                                 <Icon name={activity.icon} size={20} />
                             </div>
                             <div className="flex-1">
-                                <p className="text-sm font-medium text-gray-800">
-                                    <span className="font-bold">{activity.user}</span> {activity.action} <span className="font-bold">"{activity.target}"</span>
+                                <p className="text-sm font-medium text-text">
+                                    <span className="font-bold font-serif text-primary">{activity.user}</span> {activity.action} <span className="font-bold font-serif text-primary">"{activity.target}"</span>
                                 </p>
-                                <p className="text-xs text-gray-500 mt-1">{activity.time}</p>
+                                <p className="text-xs text-text-light mt-1">{activity.time}</p>
                             </div>
-                            <Button variant="ghost" size="sm" className="text-gray-400 hover:text-gray-600">
+                            <Button variant="ghost" size="sm" className="text-text-light hover:text-primary">
                                 <Icon name="MoreHorizontal" size={16} />
                             </Button>
                         </div>

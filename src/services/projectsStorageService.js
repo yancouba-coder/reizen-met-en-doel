@@ -1,71 +1,77 @@
-import { faker } from '@faker-js/faker';
+import {
+    collection,
+    getDocs,
+    getDoc,
+    addDoc,
+    updateDoc,
+    deleteDoc,
+    doc
+} from 'firebase/firestore';
+import { db } from '../config/firebase';
 
-const PROJECTS_KEY = 'twap_projects';
-
-// Initialize with sample data
-const initProjects = () => {
-    const projects = localStorage.getItem(PROJECTS_KEY);
-    if (!projects) {
-        const sampleProjects = Array.from({ length: 6 }).map(() => ({
-            id: faker.string.uuid(),
-            title: faker.company.catchPhrase(),
-            description: faker.lorem.paragraphs(2),
-            targetAmount: faker.number.int({ min: 5000, max: 50000 }),
-            currentAmount: faker.number.int({ min: 0, max: 30000 }),
-            location: faker.location.city(),
-            status: faker.helpers.arrayElement(['active', 'completed', 'planned']),
-            imageUrl: faker.image.urlLoremFlickr({ category: 'nature' }),
-            createdAt: faker.date.past().toISOString()
-        }));
-        localStorage.setItem(PROJECTS_KEY, JSON.stringify(sampleProjects));
-        return sampleProjects;
-    }
-    return JSON.parse(projects);
-};
+const COLLECTION_NAME = 'projects';
 
 export const projectsStorageService = {
     getAll: async () => {
-        await new Promise(resolve => setTimeout(resolve, 300));
-        return initProjects();
+        try {
+            const querySnapshot = await getDocs(collection(db, COLLECTION_NAME));
+            return querySnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+        } catch (error) {
+            console.error("Error fetching projects:", error);
+            throw error;
+        }
     },
 
     getById: async (id) => {
-        await new Promise(resolve => setTimeout(resolve, 200));
-        const projects = initProjects();
-        return projects.find(p => p.id === id);
+        try {
+            const docRef = doc(db, COLLECTION_NAME, id);
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists()) {
+                return { id: docSnap.id, ...docSnap.data() };
+            } else {
+                throw new Error('Project not found');
+            }
+        } catch (error) {
+            console.error("Error fetching project:", error);
+            throw error;
+        }
     },
 
     create: async (projectData) => {
-        await new Promise(resolve => setTimeout(resolve, 500));
-        const projects = initProjects();
-        const newProject = {
-            id: faker.string.uuid(),
-            ...projectData,
-            imageUrl: faker.image.urlLoremFlickr({ category: 'nature' }),
-            createdAt: new Date().toISOString()
-        };
-        projects.push(newProject);
-        localStorage.setItem(PROJECTS_KEY, JSON.stringify(projects));
-        return newProject;
+        try {
+            const docRef = await addDoc(collection(db, COLLECTION_NAME), {
+                ...projectData,
+                createdAt: new Date().toISOString()
+            });
+            return { id: docRef.id, ...projectData };
+        } catch (error) {
+            console.error("Error creating project:", error);
+            throw error;
+        }
     },
 
     update: async (id, updates) => {
-        await new Promise(resolve => setTimeout(resolve, 500));
-        const projects = initProjects();
-        const index = projects.findIndex(p => p.id === id);
-        if (index !== -1) {
-            projects[index] = { ...projects[index], ...updates };
-            localStorage.setItem(PROJECTS_KEY, JSON.stringify(projects));
-            return projects[index];
+        try {
+            const docRef = doc(db, COLLECTION_NAME, id);
+            await updateDoc(docRef, updates);
+            return { id, ...updates };
+        } catch (error) {
+            console.error("Error updating project:", error);
+            throw error;
         }
-        throw new Error('Project not found');
     },
 
     delete: async (id) => {
-        await new Promise(resolve => setTimeout(resolve, 400));
-        const projects = initProjects();
-        const filtered = projects.filter(p => p.id !== id);
-        localStorage.setItem(PROJECTS_KEY, JSON.stringify(filtered));
-        return true;
+        try {
+            await deleteDoc(doc(db, COLLECTION_NAME, id));
+            return true;
+        } catch (error) {
+            console.error("Error deleting project:", error);
+            throw error;
+        }
     }
 };

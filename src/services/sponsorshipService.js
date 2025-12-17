@@ -1,111 +1,90 @@
-import { apiClient } from '../api/client';
-import { authService } from './authService';
+import {
+    collection,
+    addDoc,
+    runTransaction,
+    doc,
+    serverTimestamp
+} from 'firebase/firestore';
+import { db } from '../config/firebase';
+
+const SPONSORSHIPS_COLLECTION = 'sponsorships';
+const DONATIONS_COLLECTION = 'donations';
+const CHILDREN_COLLECTION = 'children';
+const PROJECTS_COLLECTION = 'projects';
 
 export const sponsorshipService = {
-    // Get all children with optional filtering
-    getAllChildren: async (filters = {}) => {
-        let url = '/api/children';
-        const params = new URLSearchParams();
-
-        if (filters.status) params.append('status', filters.status);
-        if (filters.gender) params.append('gender', filters.gender);
-        if (filters.ageRange) params.append('ageRange', filters.ageRange);
-
-        if (params.toString()) {
-            url += `?${params.toString()}`;
-        }
-
-        return await apiClient.get(url);
-    },
-
-    // Get single child by ID
-    getChildById: async (id) => {
-        return await apiClient.get(`/api/children/${id}`);
-    },
-
-    // Get children sponsored by the current user
-    getMySponsoredChildren: async () => {
-        const user = authService.getCurrentUser();
-        if (!user || !user.sponsoredChildren || user.sponsoredChildren.length === 0) {
-            return [];
-        }
-
-        // In a real API, we might have an endpoint like /api/users/me/sponsored-children
-        // Here we'll fetch all children and filter by the IDs in the user object
-        // Or we can fetch each child individually if the list is short
-
-        // For efficiency in this mock, let's assume we can pass IDs or just filter client-side
-        // Since apiClient.get('/api/children') returns all children, we can filter here
-        const allChildren = await apiClient.get('/api/children');
-        return allChildren.filter(child => user.sponsoredChildren.includes(child.id));
-    },
-
     // Sponsor a child
-    sponsorChild: async (childId) => {
-        const user = authService.getCurrentUser();
-        if (!user) throw new Error('User must be logged in to sponsor a child');
+    sponsorChild: async (childId, sponsorDetails) => {
+        try {
+            await runTransaction(db, async (transaction) => {
+                const childRef = doc(db, CHILDREN_COLLECTION, childId);
+                const childDoc = await transaction.get(childRef);
 
-        // 1. Update user's sponsoredChildren list
-        const currentSponsored = user.sponsoredChildren || [];
-        if (currentSponsored.includes(childId)) {
-            throw new Error('You are already sponsoring this child');
+                if (!childDoc.exists()) {
+                    throw new Error("Child does not exist!");
+                }
+
+                if (childDoc.data().status === 'sponsored') {
+                    throw new Error("Child is already sponsored!");
+                }
+
+                // Create sponsorship record
+                const sponsorshipRef = doc(collection(db, SPONSORSHIPS_COLLECTION));
+                transaction.set(sponsorshipRef, {
+                    childId,
+                    sponsorDetails,
+                    status: 'active',
+                    startDate: serverTimestamp(),
+                    amount: childDoc.data().sponsorCostMonthly
+                });
+
+                // Update child status
+                transaction.update(childRef, {
+                    status: 'sponsored',
+                    sponsorId: sponsorshipRef.id
+                });
+            });
+
+            return { success: true };
+        } catch (error) {
+            console.error("Sponsorship failed:", error);
+            throw error;
         }
-
-        const updatedSponsored = [...currentSponsored, childId];
-        await authService.updateUser(user.id, { sponsoredChildren: updatedSponsored });
-
-        // 2. Send request to backend (mock) to update child status
-        // In a real app, this would be a single transaction
-        await apiClient.post('/api/sponsor-requests', {
-            childId,
-            userId: user.id,
-            type: 'sponsorship'
-        });
-
-        return true;
-    },
-
-    // Get all projects
-    getAllProjects: async () => {
-        return await apiClient.get('/api/projects');
-    },
-
-    // Get single project
-    getProjectById: async (id) => {
-        return await apiClient.get(`/api/projects/${id}`);
-    },
-
-    // Get projects the user has participated in
-    getMyProjects: async () => {
-        const user = authService.getCurrentUser();
-        if (!user || !user.participatedProjects || user.participatedProjects.length === 0) {
-            return [];
-        }
-
-        const allProjects = await apiClient.get('/api/projects');
-        return allProjects.filter(project => user.participatedProjects.includes(project.id));
     },
 
     // Donate to a project
-    donateToProject: async (projectId, amount) => {
-        const user = authService.getCurrentUser();
-        if (!user) throw new Error('User must be logged in to donate');
+    donateToProject: async (projectId, amount, donorDetails) => {
+        try {
+            await runTransaction(db, async (transaction) => {
+                const projectRef = doc(db, PROJECTS_COLLECTION, projectId);
+                const projectDoc = await transaction.get(projectRef);
 
-        // 1. Update user's participatedProjects list if not already there
-        const currentProjects = user.participatedProjects || [];
-        if (!currentProjects.includes(projectId)) {
-            const updatedProjects = [...currentProjects, projectId];
-            await authService.updateUser(user.id, { participatedProjects: updatedProjects });
+                if (!projectDoc.exists()) {
+                    throw new Error("Project does not exist!");
+                }
+
+                const currentRaised = projectDoc.data().raisedAmount || 0;
+                const newRaised = currentRaised + amount;
+
+                // Create donation record
+                const donationRef = doc(collection(db, DONATIONS_COLLECTION));
+                transaction.set(donationRef, {
+                    projectId,
+                    amount,
+                    donorDetails,
+                    date: serverTimestamp()
+                });
+
+                // Update project raised amount
+                transaction.update(projectRef, {
+                    raisedAmount: newRaised
+                });
+            });
+
+            return { success: true };
+        } catch (error) {
+            console.error("Donation failed:", error);
+            throw error;
         }
-
-        // 2. Send donation request
-        await apiClient.post('/api/donations', {
-            projectId,
-            userId: user.id,
-            amount,
-            type: 'project_donation'
-        });
-
-        return true;
     }
 };

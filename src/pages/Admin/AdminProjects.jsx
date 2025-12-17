@@ -184,10 +184,10 @@ const AdminProjects = () => {
 
     return (
         <div>
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex justify-between items-end mb-8 border-b-2 border-primary/5 pb-6">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-800">{t('admin_projects') || 'Projects Management'}</h1>
-                    <p className="text-gray-500">Track and manage ongoing projects</p>
+                    <h1 className="text-4xl font-serif font-bold text-primary mb-2">{t('admin_projects') || 'Projects Management'}</h1>
+                    <p className="text-text-muted font-sans">Track and manage ongoing projects</p>
                 </div>
             </div>
 

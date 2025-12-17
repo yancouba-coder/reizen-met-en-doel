@@ -17,7 +17,7 @@ const initTrips = () => {
             maxParticipants: faker.number.int({ min: 10, max: 30 }),
             currentParticipants: faker.number.int({ min: 0, max: 15 }),
             status: faker.helpers.arrayElement(['upcoming', 'active', 'completed', 'cancelled']),
-            imageUrl: faker.image.urlLoremFlickr({ category: 'travel' }),
+            imageUrl: faker.image.url({ width: 640, height: 480 }),
             createdAt: faker.date.past().toISOString()
         }));
         localStorage.setItem(TRIPS_KEY, JSON.stringify(sampleTrips));
@@ -45,7 +45,7 @@ export const tripsStorageService = {
             id: faker.string.uuid(),
             ...tripData,
             currentParticipants: 0,
-            imageUrl: faker.image.urlLoremFlickr({ category: 'travel' }),
+            imageUrl: faker.image.url({ width: 640, height: 480 }),
             createdAt: new Date().toISOString()
         };
         trips.push(newTrip);

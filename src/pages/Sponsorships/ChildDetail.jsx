@@ -13,7 +13,7 @@ const ChildDetail = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const location = useLocation();
-    const { user, isAuthenticated } = useAuth();
+    const { user, isAuthenticated, refreshUser } = useAuth();
     const { data: child, isLoading, error } = useChild(id);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -52,6 +52,7 @@ const ChildDetail = () => {
         setIsSubmitting(true);
         try {
             await sponsorshipService.sponsorChild(child.id);
+            await refreshUser(); // Refresh user data to get updated sponsoredChildren list
             setIsSponsoredByMe(true);
             setIsModalOpen(false);
             // Show success message or redirect

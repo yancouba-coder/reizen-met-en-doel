@@ -1,43 +1,36 @@
-import { faker } from '@faker-js/faker';
-
-// Mock storage
-let photos = Array.from({ length: 12 }).map(() => ({
-    id: faker.string.uuid(),
-    url: faker.image.urlLoremFlickr({ category: 'people' }),
-    filename: faker.system.fileName(),
-    size: faker.number.int({ min: 100000, max: 5000000 }),
-    type: 'image/jpeg',
-    uploadedAt: faker.date.recent(),
-    uploadedBy: 'Admin'
-}));
+import {
+    ref,
+    uploadBytes,
+    getDownloadURL,
+    deleteObject
+} from 'firebase/storage';
+import { storage } from '../config/firebase';
 
 export const photoService = {
-    getPhotos: async () => {
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 500));
-        return [...photos];
+    uploadPhoto: async (file, path = 'photos') => {
+        try {
+            const timestamp = Date.now();
+            const fileName = `${timestamp}_${file.name}`;
+            const storageRef = ref(storage, `${path}/${fileName}`);
+
+            const snapshot = await uploadBytes(storageRef, file);
+            const downloadURL = await getDownloadURL(snapshot.ref);
+
+            return downloadURL;
+        } catch (error) {
+            console.error("Error uploading photo:", error);
+            throw error;
+        }
     },
 
-    uploadPhoto: async (file) => {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        const newPhoto = {
-            id: faker.string.uuid(),
-            url: URL.createObjectURL(file),
-            filename: file.name,
-            size: file.size,
-            type: file.type,
-            uploadedAt: new Date(),
-            uploadedBy: 'Admin'
-        };
-
-        photos = [newPhoto, ...photos];
-        return newPhoto;
-    },
-
-    deletePhoto: async (id) => {
-        await new Promise(resolve => setTimeout(resolve, 500));
-        photos = photos.filter(p => p.id !== id);
-        return true;
+    deletePhoto: async (url) => {
+        try {
+            const storageRef = ref(storage, url);
+            await deleteObject(storageRef);
+            return true;
+        } catch (error) {
+            console.error("Error deleting photo:", error);
+            throw error;
+        }
     }
 };
